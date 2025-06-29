@@ -466,5 +466,22 @@
     // Load bookmarks on page load
     window.onload = loadBookmarks;
   </script>
+<script>
+function attachContextMenuListeners() {
+  const bookmarks = document.querySelectorAll('.bookmark:not(.add-bookmark)');
+  bookmarks.forEach(bookmark => {
+    bookmark.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      openContextMenu(e.pageX, e.pageY, bookmark);
+    });
+  });
+}
+
+// Call after bookmarks render
+window.onload = () => {
+  loadBookmarks();
+  attachContextMenuListeners();
+};
+</script>
 </body>
 </html>
