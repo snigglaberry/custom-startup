@@ -144,6 +144,21 @@
       user-select: none;
       cursor: pointer;
       padding: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bookmark img {
+  max-width: 80%;
+  max-height: 80%;
+  object-fit: contain;
+  display: block;
+  margin: auto;
+  filter: brightness(0) invert(1) saturate(1000%);
+  background-color: transparent;
+  border-radius: 50%;
+  pointer-events: none;
+  user-select: none;
     }
 
     .bookmark:hover {
@@ -206,6 +221,12 @@
       background: var(--bg);
       color: var(--text);
       font-size: 1rem;
+    }
+
+    .modal-content label {
+      font-size: 0.9rem;
+      color: var(--text);
+      user-select: none;
     }
 
     .modal-buttons {
@@ -271,46 +292,56 @@
       <button type="submit" aria-label="Search">Search</button>
     </form>
 
-<div class="bookmarks" id="bookmarks" aria-label="Bookmarks">
-  <a class="bookmark" href="https://ch3z.netlify.app" target="_blank" rel="noopener" tabindex="0">
-    C
-  </a>
-  <a class="bookmark" href="https://github.com" target="_blank" rel="noopener" tabindex="0">
-    G
-  </a>
-  <div class="bookmark add-bookmark" role="button" tabindex="0" aria-label="Add bookmark">+</div>
-</div>
+    <div class="bookmarks" id="bookmarks" aria-label="Bookmarks">
+      <a class="bookmark" href="https://ch3z.netlify.app" target="_blank" rel="noopener" tabindex="0" data-name="Ch3z" data-icon="">
+        C
+      </a>
+      <a class="bookmark" href="https://github.com" target="_blank" rel="noopener" tabindex="0" data-name="GitHub" data-icon="">
+        G
+      </a>
+      <div class="bookmark add-bookmark" role="button" tabindex="0" aria-label="Add bookmark">+</div>
+    </div>
 
-  <!-- Add Bookmark Modal -->
-  <div id="bookmark-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-desc">
-    <div class="modal-content">
-      <h2 id="modal-title">Add Bookmark</h2>
-      <input id="bm-name" type="text" placeholder="Bookmark Name" aria-label="Bookmark Name" />
-      <input id="bm-url" type="text" placeholder="Bookmark URL (include https://)" aria-label="Bookmark URL" />
-      <div class="modal-buttons">
-        <button onclick="saveBookmark()" type="button">Save</button>
-        <button onclick="closeModal()" type="button">Cancel</button>
+    <!-- Add Bookmark Modal -->
+    <div id="bookmark-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-desc">
+      <div class="modal-content">
+        <h2 id="modal-title">Add Bookmark</h2>
+        <label for="bm-name">Bookmark Name</label>
+        <input id="bm-name" type="text" placeholder="Bookmark Name" aria-label="Bookmark Name" />
+        <label for="bm-url">Bookmark URL (include https://)</label>
+        <input id="bm-url" type="text" placeholder="Bookmark URL (include https://)" aria-label="Bookmark URL" />
+        <label for="bm-icon">Bookmark Icon URL (optional)</label>
+        <input id="bm-icon" type="text" placeholder="https://example.com/icon.png" aria-label="Bookmark Icon URL" />
+        <div class="modal-buttons">
+          <button onclick="saveBookmark()" type="button">Save</button>
+          <button onclick="closeModal()" type="button">Cancel</button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Context Menu -->
-  <div id="context-menu" role="menu" aria-hidden="true">
-    <button id="rename-btn" role="menuitem">Rename</button>
-    <button id="delete-btn" role="menuitem">Delete</button>
+    <!-- Context Menu -->
+    <div id="context-menu" role="menu" aria-hidden="true">
+      <button id="rename-btn" role="menuitem">Rename</button>
+      <button id="delete-btn" role="menuitem">Delete</button>
+    </div>
+
   </div>
 
   <script>
     let bookmarksData = [];
     let contextTarget = null;
+    let lastFocusedElement = null;
 
     // Modal functions
-    function openModal(prefillName = '', prefillUrl = '') {
+    function openModal(prefillName = '', prefillUrl = '', prefillIcon = '') {
+      lastFocusedElement = document.activeElement;
       document.getElementById('bookmark-modal').style.display = 'flex';
       const nameInput = document.getElementById('bm-name');
       const urlInput = document.getElementById('bm-url');
+      const iconInput = document.getElementById('bm-icon');
       nameInput.value = prefillName;
       urlInput.value = prefillUrl;
+      iconInput.value = prefillIcon;
       nameInput.focus();
     }
 
@@ -318,18 +349,25 @@
       document.getElementById('bookmark-modal').style.display = 'none';
       document.getElementById('bm-name').value = '';
       document.getElementById('bm-url').value = '';
+      document.getElementById('bm-icon').value = '';
       contextTarget = null;
+      if (lastFocusedElement) {
+        lastFocusedElement.focus();
+        lastFocusedElement = null;
+      }
     }
 
     // Save new or renamed bookmark
     function saveBookmark() {
       const nameInput = document.getElementById('bm-name');
       const urlInput = document.getElementById('bm-url');
+      const iconInput = document.getElementById('bm-icon');
       const name = nameInput.value.trim();
       const url = urlInput.value.trim();
+      const icon = iconInput.value.trim();
 
       if (!name || !url) {
-        alert("Please fill out both fields.");
+        alert("Please fill out both name and URL fields.");
         return;
       }
 
@@ -340,42 +378,94 @@
         return;
       }
 
+      if (icon) {
+        try {
+          new URL(icon);
+        } catch {
+          alert("Please enter a valid Icon URL or leave it blank.");
+          return;
+        }
+      }
+
       if (contextTarget) {
         // Rename existing bookmark
+        const oldName = contextTarget.dataset.name;
+        const index = bookmarksData.findIndex(b => b.name === oldName);
+        
         contextTarget.dataset.name = name;
+        contextTarget.dataset.icon = icon;
         contextTarget.href = url;
-        contextTarget.querySelector('span').textContent = name.charAt(0).toUpperCase();
         contextTarget.title = name;
+
+        updateBookmarkElementContent(contextTarget, name, icon);
+
+        if (index !== -1) {
+          bookmarksData[index].name = name;
+          bookmarksData[index].url = url;
+          bookmarksData[index].icon = icon;
+        }
         updateLocalStorage();
       } else {
         // Add new bookmark
-        const link = createBookmarkElement(name, url);
+        const link = createBookmarkElement(name, url, icon);
         document.getElementById("bookmarks").insertBefore(link, document.querySelector(".add-bookmark"));
-        bookmarksData.push({ name, url });
+        bookmarksData.push({ name, url, icon });
         updateLocalStorage();
       }
       closeModal();
     }
 
-    // Create bookmark element helper
-    function createBookmarkElement(name, url) {
-      const firstLetter = document.createElement("span");
-      firstLetter.textContent = name.charAt(0).toUpperCase();
+    // Update the bookmark's inner content to show icon or letter
+    function updateBookmarkElementContent(linkElement, name, iconUrl) {
+      linkElement.innerHTML = ''; // Clear current content
+      if (iconUrl) {
+        const img = document.createElement('img');
+        img.src = iconUrl;
+        img.alt = `${name} icon`;
+        linkElement.appendChild(img);
+      } else {
+        const span = document.createElement('span');
+        span.textContent = name.charAt(0).toUpperCase();
+        linkElement.appendChild(span);
+      }
+    }
 
+    // Create bookmark element helper
+    function createBookmarkElement(name, url, iconUrl = '') {
       const link = document.createElement("a");
       link.className = "bookmark";
       link.href = url;
       link.target = "_blank";
       link.rel = "noopener";
       link.dataset.name = name;
+      link.dataset.icon = iconUrl;
       link.title = name;
       link.tabIndex = 0;
-      link.appendChild(firstLetter);
+
+      if (iconUrl) {
+        const img = document.createElement('img');
+        img.src = iconUrl;
+        img.alt = `${name} icon`;
+        link.appendChild(img);
+      } else {
+        const span = document.createElement("span");
+        span.textContent = name.charAt(0).toUpperCase();
+        link.appendChild(span);
+      }
 
       // Attach right-click listener for context menu
       link.addEventListener('contextmenu', (e) => {
         e.preventDefault();
         openContextMenu(e.pageX, e.pageY, link);
+      });
+
+      // Keyboard accessibility for context menu key or Shift+F10
+      link.addEventListener('keydown', (e) => {
+        if (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')) {
+          e.preventDefault();
+          const rect = link.getBoundingClientRect();
+          openContextMenu(rect.left, rect.bottom, link);
+        }
       });
 
       return link;
@@ -386,7 +476,7 @@
       bookmarksData = JSON.parse(localStorage.getItem("mochaBookmarks") || "[]");
       const container = document.getElementById("bookmarks");
       bookmarksData.forEach(bm => {
-        const link = createBookmarkElement(bm.name, bm.url);
+        const link = createBookmarkElement(bm.name, bm.url, bm.icon);
         container.insertBefore(link, document.querySelector(".add-bookmark"));
       });
     }
@@ -403,6 +493,19 @@
 
     function openContextMenu(x, y, target) {
       contextTarget = target;
+      // Prevent menu from going off-screen
+      const menuWidth = contextMenu.offsetWidth;
+      const menuHeight = contextMenu.offsetHeight;
+      const pageWidth = window.innerWidth;
+      const pageHeight = window.innerHeight;
+
+      if (x + menuWidth > pageWidth) {
+        x = pageWidth - menuWidth - 10;
+      }
+      if (y + menuHeight > pageHeight) {
+        y = pageHeight - menuHeight - 10;
+      }
+
       contextMenu.style.top = `${y}px`;
       contextMenu.style.left = `${x}px`;
       contextMenu.style.display = 'flex';
@@ -432,7 +535,7 @@
     // Rename bookmark (open modal prefilled)
     renameBtn.addEventListener('click', () => {
       if (!contextTarget) return;
-      openModal(contextTarget.dataset.name, contextTarget.href);
+      openModal(contextTarget.dataset.name, contextTarget.href, contextTarget.dataset.icon || '');
       closeContextMenu();
     });
 
@@ -459,25 +562,10 @@
       }
     });
 
-    // Load bookmarks on page load
-    window.onload = loadBookmarks;
+    // On load: load bookmarks
+    window.onload = () => {
+      loadBookmarks();
+    };
   </script>
-<script>
-function attachContextMenuListeners() {
-  const bookmarks = document.querySelectorAll('.bookmark:not(.add-bookmark)');
-  bookmarks.forEach(bookmark => {
-    bookmark.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-      openContextMenu(e.pageX, e.pageY, bookmark);
-    });
-  });
-}
-
-// Call after bookmarks render
-window.onload = () => {
-  loadBookmarks();
-  attachContextMenuListeners();
-};
-</script>
 </body>
 </html>
