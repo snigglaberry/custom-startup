@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>welcome</title>
+  <title>welcome,chez</title>
   <style>
     :root {
       --bg: #181926;
@@ -22,31 +22,66 @@
       font-family: 'Segoe UI', sans-serif;
       height: 100vh;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
+      padding: 0 20px;
     }
 
     .centered {
-      flex: 1;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      gap: 20px;
-      width: 100%;
+      gap: 25px;
       max-width: 600px;
-      padding: 0 20px;
+      width: 100%;
+
+      /* start invisible for animation */
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeSlideIn 1s forwards;
+      animation-delay: 1.5s; /* delay so typing on h1 finishes */
+    }
+
+    @keyframes fadeSlideIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     h1 {
       font-size: 2rem;
       color: var(--accent);
       margin: 0;
+      white-space: nowrap;
+      border-right: 3px solid var(--accent);
+      overflow: hidden;
+      width: 0;
+      animation:
+        typing 2.5s steps(13, end) forwards,
+        blinkCaret 0.75s step-end infinite;
+    }
+
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 13ch } /* length of "Welcome, Chez" */
+    }
+
+    @keyframes blinkCaret {
+      50% { border-color: transparent; }
+      100% { border-color: var(--accent); }
     }
 
     form {
       width: 100%;
       display: flex;
+      opacity: 0;
+      animation: fadeIn 0.5s forwards;
+      animation-delay: 4s; /* show after typing + container animation */
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
     }
 
     input[type="text"] {
@@ -86,9 +121,10 @@
       flex-wrap: wrap;
       justify-content: center;
       gap: 20px;
-      padding: 20px 10px 40px;
-      max-width: 600px;
       width: 100%;
+      opacity: 0;
+      animation: fadeIn 0.5s forwards;
+      animation-delay: 4.2s;
     }
 
     .bookmark {
@@ -127,19 +163,19 @@
 </head>
 <body>
   <div class="centered">
-    <h1>Welcome 👋</h1>
+    <h1 id="welcome-text">Welcome, Chez</h1>
 
     <form action="https://www.google.com/search" method="GET" role="search">
       <input type="text" name="q" placeholder="Search Google..." autocomplete="off" />
       <button type="submit" aria-label="Search">Search</button>
     </form>
-  </div>
 
-  <div class="bookmarks" id="bookmarks" aria-label="Bookmarks">
-    <a class="bookmark" href="https://google.com" target="_blank" rel="noopener">Google</a>
-    <a class="bookmark" href="https://youtube.com" target="_blank" rel="noopener">YouTube</a>
-    <a class="bookmark" href="https://github.com" target="_blank" rel="noopener">GitHub</a>
-    <div class="bookmark add-bookmark" onclick="addBookmark()" role="button" tabindex="0" aria-label="Add bookmark">+</div>
+    <div class="bookmarks" id="bookmarks" aria-label="Bookmarks">
+      <a class="bookmark" href="https://google.com" target="_blank" rel="noopener">Google</a>
+      <a class="bookmark" href="https://youtube.com" target="_blank" rel="noopener">YouTube</a>
+      <a class="bookmark" href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+      <div class="bookmark add-bookmark" onclick="addBookmark()" role="button" tabindex="0" aria-label="Add bookmark">+</div>
+    </div>
   </div>
 
   <script>
@@ -175,7 +211,6 @@
       });
     };
 
-    // Optional: make add-bookmark accessible by keyboard
     document.querySelector('.add-bookmark').addEventListener('keypress', function(e) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
