@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Welcome 👋</title>
+  <title>welcome</title>
   <style>
     :root {
       --bg: #181926;
@@ -17,26 +17,36 @@
 
     body {
       margin: 0;
-      padding: 40px 20px;
       background-color: var(--bg);
       color: var(--text);
       font-family: 'Segoe UI', sans-serif;
+      height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
+    .centered {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      width: 100%;
+      max-width: 600px;
+      padding: 0 20px;
+    }
+
     h1 {
       font-size: 2rem;
       color: var(--accent);
-      margin-bottom: 30px;
+      margin: 0;
     }
 
     form {
       width: 100%;
-      max-width: 600px;
       display: flex;
-      margin-bottom: 40px;
     }
 
     input[type="text"] {
@@ -48,6 +58,12 @@
       background-color: var(--card);
       color: var(--text);
       margin-right: 10px;
+      outline-offset: 0;
+      outline-color: var(--accent);
+    }
+
+    input[type="text"]::placeholder {
+      color: #b0a7c6;
     }
 
     button {
@@ -58,6 +74,11 @@
       color: var(--bg);
       font-weight: bold;
       cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #b68eed;
     }
 
     .bookmarks {
@@ -65,6 +86,9 @@
       flex-wrap: wrap;
       justify-content: center;
       gap: 20px;
+      padding: 20px 10px 40px;
+      max-width: 600px;
+      width: 100%;
     }
 
     .bookmark {
@@ -80,6 +104,9 @@
       font-size: 0.75rem;
       text-decoration: none;
       transition: all 0.2s ease;
+      user-select: none;
+      padding: 8px;
+      word-break: break-word;
     }
 
     .bookmark:hover {
@@ -91,22 +118,28 @@
     .add-bookmark {
       border: 2px dashed var(--accent);
       font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
   </style>
 </head>
 <body>
-  <h1>Welcome 👋</h1>
+  <div class="centered">
+    <h1>Welcome 👋</h1>
 
-  <form action="https://www.google.com/search" method="GET">
-    <input type="text" name="q" placeholder="Search Google..." />
-    <button type="submit">Search</button>
-  </form>
+    <form action="https://www.google.com/search" method="GET" role="search">
+      <input type="text" name="q" placeholder="Search Google..." autocomplete="off" />
+      <button type="submit" aria-label="Search">Search</button>
+    </form>
+  </div>
 
-  <div class="bookmarks" id="bookmarks">
-    <a class="bookmark" href="https://google.com" target="_blank">Google</a>
-    <a class="bookmark" href="https://youtube.com" target="_blank">YouTube</a>
-    <a class="bookmark" href="https://github.com" target="_blank">GitHub</a>
-    <div class="bookmark add-bookmark" onclick="addBookmark()">+</div>
+  <div class="bookmarks" id="bookmarks" aria-label="Bookmarks">
+    <a class="bookmark" href="https://google.com" target="_blank" rel="noopener">Google</a>
+    <a class="bookmark" href="https://youtube.com" target="_blank" rel="noopener">YouTube</a>
+    <a class="bookmark" href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+    <div class="bookmark add-bookmark" onclick="addBookmark()" role="button" tabindex="0" aria-label="Add bookmark">+</div>
   </div>
 
   <script>
@@ -118,6 +151,7 @@
         link.className = "bookmark";
         link.href = url;
         link.target = "_blank";
+        link.rel = "noopener";
         link.textContent = name;
         document.getElementById("bookmarks").insertBefore(link, document.querySelector(".add-bookmark"));
 
@@ -135,10 +169,19 @@
         link.className = "bookmark";
         link.href = bm.url;
         link.target = "_blank";
+        link.rel = "noopener";
         link.textContent = bm.name;
         container.insertBefore(link, document.querySelector(".add-bookmark"));
       });
     };
+
+    // Optional: make add-bookmark accessible by keyboard
+    document.querySelector('.add-bookmark').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        addBookmark();
+      }
+    });
   </script>
 </body>
 </html>
