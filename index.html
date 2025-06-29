@@ -25,6 +25,7 @@
       justify-content: center;
       align-items: center;
       padding: 0 20px;
+      user-select: none;
     }
 
     .centered {
@@ -35,11 +36,10 @@
       max-width: 600px;
       width: 100%;
 
-      /* start invisible for animation */
       opacity: 0;
       transform: translateY(30px);
       animation: fadeSlideIn 1s forwards;
-      animation-delay: 1.5s; /* delay so typing on h1 finishes */
+      animation-delay: 1.5s;
     }
 
     @keyframes fadeSlideIn {
@@ -64,7 +64,7 @@
 
     @keyframes typing {
       from { width: 0 }
-      to { width: 13ch } /* length of "Welcome, Chez" */
+      to { width: 13ch }
     }
 
     @keyframes blinkCaret {
@@ -77,7 +77,7 @@
       display: flex;
       opacity: 0;
       animation: fadeIn 0.5s forwards;
-      animation-delay: 4s; /* show after typing + container animation */
+      animation-delay: 4s;
     }
 
     @keyframes fadeIn {
@@ -137,12 +137,13 @@
       justify-content: center;
       text-align: center;
       color: var(--text);
-      font-size: 0.75rem;
+      font-size: 1.4rem;
+      font-weight: bold;
       text-decoration: none;
       transition: all 0.2s ease;
       user-select: none;
+      cursor: pointer;
       padding: 8px;
-      word-break: break-word;
     }
 
     .bookmark:hover {
@@ -153,11 +154,111 @@
 
     .add-bookmark {
       border: 2px dashed var(--accent);
-      font-size: 1.5rem;
+      font-size: 2rem;
+      font-weight: normal;
       cursor: pointer;
       display: flex;
       justify-content: center;
       align-items: center;
+      color: var(--accent);
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+
+    .add-bookmark:hover {
+      background-color: var(--accent);
+      color: var(--bg);
+      transform: scale(1.1);
+    }
+
+    /* Modal styles */
+    #bookmark-modal {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background-color: var(--card);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+      width: 90%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .modal-content h2 {
+      margin: 0;
+      color: var(--accent);
+    }
+
+    .modal-content input {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .modal-buttons button {
+      padding: 10px 20px;
+      border-radius: 999px;
+      border: none;
+      background-color: var(--accent);
+      color: var(--bg);
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      font-size: 1rem;
+    }
+
+    .modal-buttons button:hover {
+      background-color: #b68eed;
+    }
+
+    /* Context menu styles */
+    #context-menu {
+      position: fixed;
+      background: var(--card);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.6);
+      border-radius: 8px;
+      display: none;
+      flex-direction: column;
+      min-width: 120px;
+      z-index: 2000;
+      user-select: none;
+    }
+
+    #context-menu button {
+      background: none;
+      border: none;
+      color: var(--text);
+      padding: 10px 15px;
+      text-align: left;
+      cursor: pointer;
+      font-size: 1rem;
+      border-radius: 8px;
+      width: 100%;
+      transition: background-color 0.15s ease;
+    }
+
+    #context-menu button:hover {
+      background-color: var(--accent);
+      color: var(--bg);
     }
   </style>
 </head>
@@ -171,52 +272,199 @@
     </form>
 
     <div class="bookmarks" id="bookmarks" aria-label="Bookmarks">
-      <a class="bookmark" href="https://google.com" target="_blank" rel="noopener">Google</a>
-      <a class="bookmark" href="https://youtube.com" target="_blank" rel="noopener">YouTube</a>
-      <a class="bookmark" href="https://github.com" target="_blank" rel="noopener">GitHub</a>
-      <div class="bookmark add-bookmark" onclick="addBookmark()" role="button" tabindex="0" aria-label="Add bookmark">+</div>
+      <a class="bookmark" href="https://google.com" target="_blank" rel="noopener" tabindex="0">
+        G
+      </a>
+      <a class="bookmark" href="https://youtube.com" target="_blank" rel="noopener" tabindex="0">
+        Y
+      </a>
+      <a class="bookmark" href="https://github.com" target="_blank" rel="noopener" tabindex="0">
+        G
+      </a>
+      <div class="bookmark add-bookmark" role="button" tabindex="0" aria-label="Add bookmark">+</div>
     </div>
   </div>
 
-  <script>
-    function addBookmark() {
-      const name = prompt("Bookmark name:");
-      const url = prompt("Bookmark URL (include https://):");
-      if (name && url) {
-        const link = document.createElement("a");
-        link.className = "bookmark";
-        link.href = url;
-        link.target = "_blank";
-        link.rel = "noopener";
-        link.textContent = name;
-        document.getElementById("bookmarks").insertBefore(link, document.querySelector(".add-bookmark"));
+  <!-- Add Bookmark Modal -->
+  <div id="bookmark-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-desc">
+    <div class="modal-content">
+      <h2 id="modal-title">Add Bookmark</h2>
+      <input id="bm-name" type="text" placeholder="Bookmark Name" aria-label="Bookmark Name" />
+      <input id="bm-url" type="text" placeholder="Bookmark URL (include https://)" aria-label="Bookmark URL" />
+      <div class="modal-buttons">
+        <button onclick="saveBookmark()" type="button">Save</button>
+        <button onclick="closeModal()" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
 
-        let saved = JSON.parse(localStorage.getItem("mochaBookmarks") || "[]");
-        saved.push({ name, url });
-        localStorage.setItem("mochaBookmarks", JSON.stringify(saved));
-      }
+  <!-- Context Menu -->
+  <div id="context-menu" role="menu" aria-hidden="true">
+    <button id="rename-btn" role="menuitem">Rename</button>
+    <button id="delete-btn" role="menuitem">Delete</button>
+  </div>
+
+  <script>
+    let bookmarksData = [];
+    let contextTarget = null;
+
+    // Modal functions
+    function openModal(prefillName = '', prefillUrl = '') {
+      document.getElementById('bookmark-modal').style.display = 'flex';
+      const nameInput = document.getElementById('bm-name');
+      const urlInput = document.getElementById('bm-url');
+      nameInput.value = prefillName;
+      urlInput.value = prefillUrl;
+      nameInput.focus();
     }
 
-    window.onload = () => {
-      const saved = JSON.parse(localStorage.getItem("mochaBookmarks") || "[]");
+    function closeModal() {
+      document.getElementById('bookmark-modal').style.display = 'none';
+      document.getElementById('bm-name').value = '';
+      document.getElementById('bm-url').value = '';
+      contextTarget = null;
+    }
+
+    // Save new or renamed bookmark
+    function saveBookmark() {
+      const nameInput = document.getElementById('bm-name');
+      const urlInput = document.getElementById('bm-url');
+      const name = nameInput.value.trim();
+      const url = urlInput.value.trim();
+
+      if (!name || !url) {
+        alert("Please fill out both fields.");
+        return;
+      }
+
+      try {
+        new URL(url);
+      } catch {
+        alert("Please enter a valid URL including https://");
+        return;
+      }
+
+      if (contextTarget) {
+        // Rename existing bookmark
+        contextTarget.dataset.name = name;
+        contextTarget.href = url;
+        contextTarget.querySelector('span').textContent = name.charAt(0).toUpperCase();
+        contextTarget.title = name;
+        updateLocalStorage();
+      } else {
+        // Add new bookmark
+        const link = createBookmarkElement(name, url);
+        document.getElementById("bookmarks").insertBefore(link, document.querySelector(".add-bookmark"));
+        bookmarksData.push({ name, url });
+        updateLocalStorage();
+      }
+      closeModal();
+    }
+
+    // Create bookmark element helper
+    function createBookmarkElement(name, url) {
+      const firstLetter = document.createElement("span");
+      firstLetter.textContent = name.charAt(0).toUpperCase();
+
+      const link = document.createElement("a");
+      link.className = "bookmark";
+      link.href = url;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.dataset.name = name;
+      link.title = name;
+      link.tabIndex = 0;
+      link.appendChild(firstLetter);
+
+      // Attach right-click listener for context menu
+      link.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        openContextMenu(e.pageX, e.pageY, link);
+      });
+
+      return link;
+    }
+
+    // Load bookmarks from localStorage and render
+    function loadBookmarks() {
+      bookmarksData = JSON.parse(localStorage.getItem("mochaBookmarks") || "[]");
       const container = document.getElementById("bookmarks");
-      saved.forEach(bm => {
-        const link = document.createElement("a");
-        link.className = "bookmark";
-        link.href = bm.url;
-        link.target = "_blank";
-        link.rel = "noopener";
-        link.textContent = bm.name;
+      bookmarksData.forEach(bm => {
+        const link = createBookmarkElement(bm.name, bm.url);
         container.insertBefore(link, document.querySelector(".add-bookmark"));
       });
-    };
+    }
 
+    // Update localStorage from bookmarksData array
+    function updateLocalStorage() {
+      localStorage.setItem("mochaBookmarks", JSON.stringify(bookmarksData));
+    }
+
+    // Context menu control
+    const contextMenu = document.getElementById('context-menu');
+    const renameBtn = document.getElementById('rename-btn');
+    const deleteBtn = document.getElementById('delete-btn');
+
+    function openContextMenu(x, y, target) {
+      contextTarget = target;
+      contextMenu.style.top = `${y}px`;
+      contextMenu.style.left = `${x}px`;
+      contextMenu.style.display = 'flex';
+      contextMenu.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeContextMenu() {
+      contextMenu.style.display = 'none';
+      contextMenu.setAttribute('aria-hidden', 'true');
+      contextTarget = null;
+    }
+
+    // Delete bookmark
+    deleteBtn.addEventListener('click', () => {
+      if (!contextTarget) return;
+      const name = contextTarget.dataset.name;
+      if (confirm(`Delete bookmark "${name}"?`)) {
+        // Remove from DOM
+        contextTarget.remove();
+        // Remove from data and update storage
+        bookmarksData = bookmarksData.filter(b => b.name !== name);
+        updateLocalStorage();
+      }
+      closeContextMenu();
+    });
+
+    // Rename bookmark (open modal prefilled)
+    renameBtn.addEventListener('click', () => {
+      if (!contextTarget) return;
+      openModal(contextTarget.dataset.name, contextTarget.href);
+      closeContextMenu();
+    });
+
+    // Global click closes context menu
+    window.addEventListener('click', (e) => {
+      if (contextMenu.style.display === 'flex' && !contextMenu.contains(e.target)) {
+        closeContextMenu();
+      }
+    });
+
+    // Close context menu on Escape key
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && contextMenu.style.display === 'flex') {
+        closeContextMenu();
+      }
+    });
+
+    // Add bookmark modal open handlers
+    document.querySelector('.add-bookmark').addEventListener('click', () => openModal());
     document.querySelector('.add-bookmark').addEventListener('keypress', function(e) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        addBookmark();
+        openModal();
       }
     });
+
+    // Load bookmarks on page load
+    window.onload = loadBookmarks;
   </script>
 </body>
 </html>
