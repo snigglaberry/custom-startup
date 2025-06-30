@@ -1,270 +1,256 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>welcome,chez</title>
-  <style>
-    :root {
-      --bg: #181926;
-      --accent: #cba6f7;
-      --text: #f5f5f5;
-      --card: #1e1f2b;
-    }
+<meta charset="UTF-8" />
+<title>welcome, chez</title>
+<style>
+  :root {
+    --bg: #181926;
+    --accent: #cba6f7;
+    --text: #f5f5f5;
+    --card: #1e1f2b;
+  }
 
-    * {
-      box-sizing: border-box;
-    }
+  body {
+    margin: 0;
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    user-select: none;
+  }
 
-    body {
-      margin: 0;
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: 'Segoe UI', sans-serif;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 0 20px;
-      user-select: none;
-    }
+  /* Top bar container */
+  .top-bar {
+    width: 100%;
+    max-width: 700px;
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    margin-bottom: 30px;
+    font-weight: 600;
+  }
 
-    .centered {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 25px;
-      max-width: 600px;
-      width: 100%;
+  /* Time container centered */
+  .time-container {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    user-select: text;
+  }
 
-      opacity: 0;
-      transform: translateY(30px);
-      animation: fadeSlideIn 1s forwards;
-      animation-delay: 1.5s;
-    }
+  #timeText {
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 1;
+  }
 
-    @keyframes fadeSlideIn {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+  #ampm {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-left: 8px;
+    margin-bottom: 0.7rem;
+  }
 
-    h1 {
-      font-size: 2rem;
-      color: var(--accent);
-      margin: 0;
-      white-space: nowrap;
-      border-right: 3px solid var(--accent);
-      overflow: hidden;
-      width: 0;
-      animation:
-        typing 2.5s steps(13, end) forwards,
-        blinkCaret 0.75s step-end infinite;
-    }
+  /* Search form container */
+  form {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 30px;
+  }
 
-    @keyframes typing {
-      from { width: 0 }
-      to { width: 13ch }
-    }
+  input[type="text"] {
+    flex: 1;
+    padding: 12px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 999px;
+    background-color: var(--card);
+    color: var(--text);
+    outline-offset: 0;
+    outline-color: var(--accent);
+  }
 
-    @keyframes blinkCaret {
-      50% { border-color: transparent; }
-      100% { border-color: var(--accent); }
-    }
+  input[type="text"]::placeholder {
+    color: #b0a7c6;
+  }
 
-    form {
-      width: 100%;
-      display: flex;
-      opacity: 0;
-      animation: fadeIn 0.5s forwards;
-      animation-delay: 4s;
-    }
+  button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 999px;
+    background-color: var(--accent);
+    color: var(--bg);
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
 
-    @keyframes fadeIn {
-      to { opacity: 1; }
-    }
+  button:hover {
+    background-color: #b68eed;
+  }
 
-    input[type="text"] {
-      flex: 1;
-      padding: 12px 20px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 999px;
-      background-color: var(--card);
-      color: var(--text);
-      margin-right: 10px;
-      outline-offset: 0;
-      outline-color: var(--accent);
-    }
+  /* Welcome text centered below */
+  #welcome-text {
+    font-size: 2rem;
+    color: var(--accent);
+    margin: 0 0 40px 0;
+    white-space: nowrap;
+    border-right: 3px solid var(--accent);
+    overflow: hidden;
+    width: 0;
+    animation:
+      typing 2.5s steps(13, end) forwards,
+      blinkCaret 0.75s step-end infinite;
+    user-select: text;
+    text-align: center;
+  }
 
-    input[type="text"]::placeholder {
-      color: #b0a7c6;
-    }
+  @keyframes typing {
+    from { width: 0 }
+    to { width: 13ch }
+  }
 
-    button {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 999px;
-      background-color: var(--accent);
-      color: var(--bg);
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
+  @keyframes blinkCaret {
+    50% { border-color: transparent; }
+    100% { border-color: var(--accent); }
+  }
 
-    button:hover {
-      background-color: #b68eed;
-    }
+  /* Battery widget under search, centered */
+  .battery-widget {
+    background-color: var(--card);
+    padding: 14px 24px;
+    border-radius: 12px;
+    min-width: 200px;
+    max-width: 320px;
+    box-shadow: 0 0 15px rgba(203, 166, 247, 0.5);
+    color: var(--text);
+    font-weight: 600;
+    font-size: 1rem;
+    user-select: none;
+    margin-bottom: 25px;
+  }
 
-    /* Battery Widget styles */
-    .battery-widget {
-      width: 200px;
-      background-color: var(--card);
-      border-radius: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
-      user-select: none;
-      margin-top: 20px;
-    }
+  .battery-bar-container {
+    width: 100%;
+    background: #2a2b3a;
+    border-radius: 10px;
+    height: 22px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
 
-    .progress-ring {
-      position: relative;
-      width: 120px;
-      height: 120px;
-    }
+  .battery-bar {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.4s ease;
+  }
 
-    .progress-ring svg {
-      transform: rotate(-90deg);
-      width: 100%;
-      height: 100%;
-    }
+  .battery-percent {
+    margin-top: 6px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
 
-    .progress-ring circle {
-      fill: none;
-      stroke-width: 10;
-    }
-
-    .background {
-      stroke: #2a2b3a;
-    }
-
-    .progress {
-      stroke: var(--accent);
-      stroke-linecap: round;
-      transition: stroke-dashoffset 0.35s;
-      transform-origin: center;
-    }
-
-    .icon-center {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 48px;
-      height: 48px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .icon-svg {
-      width: 40px;
-      height: 40px;
-      filter: drop-shadow(0 0 2px var(--accent));
-    }
-
-    .percent-box {
-      margin-top: 15px;
-      background: var(--bg);
-      color: var(--accent);
-      font-weight: bold;
-      font-size: 1.3rem;
-      padding: 5px 15px;
-      border-radius: 999px;
-      min-width: 70px;
-      text-align: center;
-      user-select: text;
-    }
-
-    .battery-text {
-      margin-top: 10px;
-      color: var(--text);
-      font-size: 1rem;
-      text-align: center;
-      user-select: none;
-    }
-  </style>
+  /* Date below battery, big text */
+  #dateText {
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: var(--accent);
+    user-select: text;
+    text-align: center;
+    max-width: 700px;
+    margin-top: 0;
+  }
+</style>
 </head>
 <body>
-  <div class="centered">
-    <h1 id="welcome-text">Welcome, Chez</h1>
 
-    <form action="https://www.google.com/search" method="GET" role="search">
-      <input type="text" name="q" placeholder="Search Google..." autocomplete="off" />
-      <button type="submit" aria-label="Search">Search</button>
-    </form>
-
-    <div class="battery-widget" role="region" aria-label="Battery Status">
-      <div class="progress-ring" aria-hidden="true">
-        <svg width="120" height="120" aria-hidden="true" focusable="false">
-          <circle class="background" cx="60" cy="60" r="50" />
-          <circle class="progress" cx="60" cy="60" r="50" stroke-dasharray="314" stroke-dashoffset="314" />
-        </svg>
-        <div class="icon-center" aria-hidden="true">
-          <img class="icon-svg" src="data:image/svg+xml;utf8,<svg fill='none' stroke='%23cba6f7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><rect x='1' y='6' width='18' height='12' rx='2' ry='2'/><line x1='23' y1='13' x2='23' y2='11'/></svg>" alt="" />
-        </div>
-      </div>
-      <div class="percent-box" aria-live="polite" aria-atomic="true">
-        <span class="percent-text">--%</span>
-      </div>
-      <div class="battery-text" aria-live="polite" aria-atomic="true">
-        -- 
-      </div>
+  <div class="top-bar" role="banner" aria-label="Time">
+    <div class="time-container" aria-live="polite" aria-atomic="true">
+      <div id="timeText">--:--:--</div>
+      <div id="ampm">--</div>
     </div>
   </div>
 
+  <form action="https://www.google.com/search" method="GET" role="search" aria-label="Google Search">
+    <input type="text" name="q" placeholder="Search Google..." autocomplete="off" aria-label="Search Google" />
+    <button type="submit" aria-label="Search">Search</button>
+  </form>
+
+  <h1 id="welcome-text">Welcome, Chez</h1>
+
+  <div class="battery-widget" role="region" aria-label="Battery status">
+    <div>Battery</div>
+    <div class="battery-bar-container" aria-hidden="true">
+      <div class="battery-bar" id="batteryBar"></div>
+    </div>
+    <div id="batteryPercent" class="battery-percent" aria-live="polite" aria-atomic="true">--%</div>
+  </div>
+
+  <div id="dateText" aria-live="polite" aria-atomic="true">--</div>
+
   <script>
-    const progressCircle = document.querySelector('.progress-ring .progress');
-    const percentText = document.querySelector('.percent-text');
-    const batteryText = document.querySelector('.battery-text');
+    // Update date and time every second
+    function updateDateTime() {
+      const now = new Date();
 
-    const radius = progressCircle.r.baseVal.value;
-    const circumference = 2 * Math.PI * radius;
+      // Format date: Tuesday, June 30, 2025
+      const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const formattedDate = now.toLocaleDateString(undefined, dateOptions);
 
-    progressCircle.style.strokeDasharray = circumference;
-    progressCircle.style.strokeDashoffset = circumference;
+      // Format time in 12h with seconds and AM/PM
+      let hours = now.getHours();
+      const minutes = now.getMinutes();
+      const seconds = now.getSeconds();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12; // hour 0 => 12
 
-    function setProgress(percent) {
-      const offset = circumference - (percent / 100) * circumference;
-      progressCircle.style.strokeDashoffset = offset;
-      percentText.textContent = `${percent}%`;
+      // Pad minutes and seconds
+      const pad = num => num.toString().padStart(2, '0');
+      const timeStr = `${hours}:${pad(minutes)}:${pad(seconds)}`;
+
+      document.getElementById('dateText').textContent = formattedDate;
+      document.getElementById('timeText').textContent = timeStr;
+      document.getElementById('ampm').textContent = ampm;
+    }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+
+    // Battery bar update
+    const batteryBar = document.getElementById('batteryBar');
+    const batteryPercent = document.getElementById('batteryPercent');
+
+    function setBatteryLevel(level) {
+      const percent = Math.round(level * 100);
+      batteryBar.style.width = percent + '%';
+      batteryPercent.textContent = percent + '%';
     }
 
-    // Battery API support
     if ('getBattery' in navigator) {
       navigator.getBattery().then(battery => {
-        function updateAll() {
-          let level = Math.round(battery.level * 100);
-          setProgress(level);
-
-          if (battery.charging) {
-            batteryText.textContent = "Charging ⚡";
-          } else {
-            batteryText.textContent = `not  charging`;
-          }
+        function updateBattery() {
+          setBatteryLevel(battery.level);
         }
+        updateBattery();
 
-        updateAll();
-
-        battery.addEventListener('levelchange', updateAll);
-        battery.addEventListener('chargingchange', updateAll);
+        battery.addEventListener('levelchange', updateBattery);
+        battery.addEventListener('chargingchange', updateBattery);
       });
     } else {
-      percentText.textContent = 'N/A';
-      batteryText.textContent = 'Battery API not supported';
+      batteryPercent.textContent = 'N/A';
+      batteryBar.style.width = '0%';
     }
   </script>
 </body>
