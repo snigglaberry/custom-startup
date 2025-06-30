@@ -239,28 +239,39 @@
     #settings-content button:hover {
       background-color: #b68eed;
     }
-    .connected-devices {
-  margin-top: auto;
-  padding: 20px;
-  width: 100%;
-  max-width: 600px;
+    .bluetooth-card {
+  margin-top: 30px;
   background-color: var(--card);
+  padding: 20px;
   border-radius: 16px;
   text-align: center;
   box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  max-width: 300px;
+  width: 100%;
 }
 
-.connected-devices h2 {
-  margin: 0 0 10px;
-  color: var(--accent);
-  font-size: 1.2rem;
-}
-
-.device-icons {
-  font-size: 2rem;
+.bluetooth-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: var(--accent);
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 30px;
+  font-size: 2rem;
+  margin: 0 auto 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.bluetooth-circle:hover {
+  background-color: #b68eed;
+}
+
+#bluetoothStatus {
+  color: var(--text);
+  font-weight: 600;
+  font-size: 1rem;
 }
 
   </style>
@@ -435,13 +446,35 @@
       }
     });
   </script>
-<div class="connected-devices" aria-label="Connected Devices">
-  <h2>Connected Devices</h2>
-  <div class="device-icons">
-    <span id="audio-device" title="Audio Device">🎧</span>
-    <span id="usb-device" title="USB Device">🔌</span>
+<div class="bluetooth-card" aria-label="Bluetooth Status">
+  <div class="bluetooth-circle" id="bluetoothCircle" title="No device connected">
+    🔵
   </div>
+  <p id="bluetoothStatus">Nothing is connected</p>
 </div>
+<script>
+  const bluetoothCircle = document.getElementById("bluetoothCircle");
+const bluetoothStatus = document.getElementById("bluetoothStatus");
+
+function checkBluetoothConnection() {
+  navigator.bluetooth.getDevices().then(devices => {
+    if (devices.length > 0) {
+      const device = devices[0];
+      bluetoothStatus.textContent = "Connected";
+      bluetoothCircle.title = device.name || "Bluetooth Device";
+    } else {
+      bluetoothStatus.textContent = "Nothing is connected";
+      bluetoothCircle.title = "No device connected";
+    }
+  }).catch(err => {
+    bluetoothStatus.textContent = "Bluetooth not available";
+    bluetoothCircle.title = "Bluetooth not supported or permission denied";
+    console.error("Bluetooth error:", err);
+  });
+}
+
+// Trigger on load
+checkBluetoothConnection();
+</script>
 </body>
 </html>
-
